@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MYSTIC ZONE — ดูดวงสไตล์ Gen Z</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Kanit:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg1:#0d0d1a;--bg2:#1a1025;--bg3:#12001a;--acc:#c9b6ff;--gold:#d4af37;--txt:#e8d5b7;--sub:#9b8ec4;--cbg:#1a0a2a;--bdr:rgba(180,130,255,.3);--good:#4dff9e;--bad:#ff6b9d;--mid:#ffd060}
+body{min-height:100vh;background:radial-gradient(ellipse at 20% 10%,var(--bg2),var(--bg1) 50%,var(--bg3));font-family:'Kanit',sans-serif;color:var(--txt);overflow-x:hidden}
+canvas#bgc{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0}
+.inn{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:16px 12px}
+h1{font-family:'Cinzel',serif;font-size:clamp(18px,5vw,30px);text-align:center;margin-bottom:4px;background:linear-gradient(90deg,var(--acc),var(--gold),var(--acc));background-size:200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:3px;animation:gs 5s linear infinite}
+@keyframes gs{0%{background-position:0%}100%{background-position:200%}}
+.hero-sub{text-align:center;font-size:10px;color:var(--sub);letter-spacing:2px;margin-bottom:14px}
+.ctrl-bar{display:flex;justify-content:center;gap:5px;margin-bottom:8px;flex-wrap:wrap}
+.ctrl-btn{background:rgba(255,255,255,.05);border:1px solid var(--bdr);color:var(--sub);padding:5px 11px;border-radius:14px;font-size:11px;cursor:pointer;transition:background .2s,border-color .2s;font-family:'Kanit',sans-serif}
+.ctrl-btn:hover,.ctrl-btn.on{background:rgba(255,255,255,.13);border-color:var(--acc);color:var(--acc)}
+.mode-tabs{display:flex;justify-content:center;gap:4px;margin-bottom:8px;flex-wrap:wrap}
+.mode-tab{background:rgba(255,255,255,.05);border:1px solid var(--bdr);color:var(--acc);padding:6px 11px;border-radius:18px;font-family:'Kanit',sans-serif;font-size:11px;cursor:pointer;transition:all .2s}
+.mode-tab:hover,.mode-tab.on{background:rgba(255,255,255,.14);border-color:var(--acc);box-shadow:0 0 10px rgba(180,130,255,.3);color:#fff}
+.cats{display:flex;flex-wrap:wrap;justify-content:center;gap:4px;margin-bottom:10px}
+.cat-btn{background:rgba(255,255,255,.04);border:1px solid var(--bdr);color:var(--sub);padding:4px 11px;border-radius:13px;font-size:11px;cursor:pointer;transition:all .2s;font-family:'Kanit',sans-serif}
+.cat-btn:hover,.cat-btn.on{background:rgba(255,255,255,.12);border-color:var(--acc);color:#fff}
+.sec{display:none}.sec.on{display:block}
+.orb-wrap{text-align:center;margin-bottom:12px}
+.orb{width:62px;height:62px;border-radius:50%;margin:0 auto 10px;background:radial-gradient(circle at 35% 30%,#ffe0ff,#9040ff 50%,#200060);border:2px solid rgba(200,160,255,.5);box-shadow:0 0 24px rgba(160,80,255,.5);display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer;position:relative;overflow:hidden;transition:all .4s}
+.orb::after{content:'';position:absolute;top:12%;left:18%;width:28%;height:18%;background:rgba(255,255,255,.2);border-radius:50%;transform:rotate(-30deg)}
+.orb.pulse{animation:op 1s ease-in-out infinite}
+@keyframes op{0%,100%{box-shadow:0 0 24px rgba(160,80,255,.4)}50%{box-shadow:0 0 55px rgba(200,100,255,.9),0 0 80px rgba(100,200,255,.4)}}
+.draw-btn{display:block;width:100%;padding:11px;background:linear-gradient(135deg,#5a0a9a,#8b20c8);border:1.5px solid var(--acc);border-radius:24px;color:#fff;font-family:'Kanit',sans-serif;font-size:14px;font-weight:700;cursor:pointer;text-align:center;margin-bottom:12px;transition:opacity .2s}
+.draw-btn:hover{opacity:.85}.draw-btn:disabled{opacity:.4;cursor:not-allowed}
+.cards{display:flex;justify-content:center;gap:11px;flex-wrap:wrap;margin-bottom:16px;perspective:1200px}
+.card-wrap{display:flex;flex-direction:column;align-items:center;gap:4px}
+.tarot-card{width:100px;cursor:pointer}
+.flip-box{width:100px;height:168px;position:relative;transform-style:preserve-3d;transition:transform .7s cubic-bezier(.4,0,.2,1);border-radius:11px}
+.flip-box.flipped{transform:rotateY(180deg)}
+.front,.back{position:absolute;inset:0;border-radius:11px;backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.back{background:linear-gradient(145deg,#2a0060,#080030);border:2px solid rgba(180,130,255,.4)}
+.front{transform:rotateY(180deg);border:2px solid rgba(255,255,255,.15);padding:8px}
+.card-emoji{font-size:44px;margin-bottom:6px}
+.card-name{font-size:8px;color:#ffd;text-align:center;font-family:'Cinzel',serif;letter-spacing:.5px}
+.card-pos-lbl{text-align:center;font-size:9px;color:var(--sub);margin-top:5px;font-family:'Cinzel',serif}
+.result{background:rgba(255,255,255,.03);border:1px solid var(--bdr);border-radius:15px;padding:16px;display:none;animation:fi .7s ease}
+.result.on{display:block}
+@keyframes fi{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.vibe{border-radius:11px;padding:11px 15px;margin-bottom:12px;text-align:center}
+.vibe.good{background:rgba(0,200,100,.12);border:1.5px solid rgba(0,255,120,.4)}
+.vibe.bad{background:rgba(200,0,80,.12);border:1.5px solid rgba(255,0,100,.4)}
+.vibe.mid{background:rgba(255,180,0,.12);border:1.5px solid rgba(255,200,0,.4)}
+.vibe-title{font-size:16px;font-weight:700;margin-bottom:2px}
+.good .vibe-title{color:var(--good)}.bad .vibe-title{color:var(--bad)}.mid .vibe-title{color:var(--mid)}
+.vibe-sub{font-size:10px;opacity:.65}
+.card-rows{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.cr{background:rgba(255,255,255,.04);border-radius:9px;padding:9px 11px;border-left:3px solid var(--acc)}
+.cr.good{border-left-color:var(--good)}.cr.bad{border-left-color:var(--bad)}.cr.mid{border-left-color:var(--mid)}
+.cr-top{display:flex;align-items:center;gap:7px;margin-bottom:5px}
+.cr-em{font-size:16px}.cr-nm{font-size:11px;font-weight:700;color:var(--acc)}.cr-pos{margin-left:auto;font-size:9px;color:var(--sub);background:rgba(180,130,255,.12);padding:2px 7px;border-radius:8px}
+.bar-row{display:flex;align-items:center;gap:6px}
+.bar-lbl{font-size:9px;color:var(--sub);width:46px}
+.bar-bg{flex:1;height:4px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px;transition:width .9s ease .1s;width:0%}
+.bar-fill.good{background:linear-gradient(90deg,#00c864,var(--good))}.bar-fill.bad{background:linear-gradient(90deg,#c80050,var(--bad))}.bar-fill.mid{background:linear-gradient(90deg,#c8a000,var(--mid))}
+.bar-val{font-size:9px;color:var(--acc);width:24px;text-align:right}
+.tip{margin-top:6px;font-size:11px;background:rgba(255,255,255,.05);border-radius:6px;padding:6px 9px;color:var(--gold);line-height:1.5}
+.ai-box{background:rgba(100,50,200,.1);border:1px solid var(--bdr);border-radius:11px;padding:12px;margin-bottom:10px}
+.ai-title{font-family:'Cinzel',serif;font-size:10px;color:var(--acc);letter-spacing:1px;margin-bottom:5px;text-align:center}
+.ai-text{font-size:12px;line-height:1.8;color:var(--txt)}
+.ld span{display:inline-block;animation:db 1.2s infinite;color:var(--acc);font-size:13px}
+.ld span:nth-child(2){animation-delay:.2s}.ld span:nth-child(3){animation-delay:.4s}
+@keyframes db{0%,80%,100%{transform:translateY(0);opacity:.35}40%{transform:translateY(-4px);opacity:1}}
+.fn{text-align:center;font-size:10px;color:var(--sub);margin-top:9px;border-top:1px solid var(--bdr);padding-top:8px;opacity:.6}
+.pop-wrap{position:fixed;top:35%;left:50%;transform:translateX(-50%);z-index:1001;pointer-events:none}
+.pop-word{font-family:'Cinzel',serif;font-size:clamp(34px,8vw,66px);font-weight:700;letter-spacing:3px;text-align:center;animation:pa 1.4s ease forwards;display:block}
+.pop-word.good{color:var(--good);text-shadow:0 0 40px var(--good)}.pop-word.mid{color:var(--mid);text-shadow:0 0 40px var(--mid)}.pop-word.bad{color:var(--bad);text-shadow:0 0 40px var(--bad)}
+@keyframes pa{0%{transform:scale(0) rotate(-10deg);opacity:0}30%{transform:scale(1.2) rotate(3deg);opacity:1}65%{transform:scale(1);opacity:1}100%{transform:scale(1.1);opacity:0}}
+.pcon{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:999}
+.particle{position:absolute;border-radius:50%;animation:pf var(--dur,1.4s) ease-out forwards}
+@keyframes pf{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(var(--tx,0),var(--ty,-160px)) scale(0);opacity:0}}
+.chat-msgs{height:200px;overflow-y:auto;background:rgba(0,0,0,.25);border:1px solid var(--bdr);border-radius:10px;padding:10px;margin-bottom:8px;display:flex;flex-direction:column;gap:7px}
+.msg{max-width:84%;padding:7px 11px;border-radius:10px;font-size:11px;line-height:1.6;animation:fi .3s ease}
+.msg.bot{background:rgba(180,130,255,.14);border:1px solid rgba(180,130,255,.25);align-self:flex-start}
+.msg.user{background:rgba(90,10,154,.5);border:1px solid rgba(180,130,255,.3);align-self:flex-end;color:#fff}
+.chat-row{display:flex;gap:6px;margin-bottom:6px}
+.chat-inp{flex:1;background:rgba(255,255,255,.06);border:1px solid var(--bdr);border-radius:18px;padding:8px 13px;color:var(--txt);font-family:'Kanit',sans-serif;font-size:12px;outline:none}
+.chat-inp:focus{border-color:var(--acc)}
+.chat-send{background:linear-gradient(135deg,#5a0a9a,#8b20c8);border:none;border-radius:18px;padding:8px 14px;color:#fff;font-size:12px;cursor:pointer;font-family:'Kanit',sans-serif;white-space:nowrap}
+.qas{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px}
+.qa{background:rgba(180,130,255,.09);border:1px solid var(--bdr);border-radius:11px;padding:3px 9px;font-size:10px;color:var(--acc);cursor:pointer;font-family:'Kanit',sans-serif}
+.qa:hover{background:rgba(180,130,255,.22)}
+.form-lbl{font-size:11px;color:var(--sub);margin-bottom:4px;display:block}
+.form-inp{width:100%;background:rgba(255,255,255,.07);border:1px solid var(--bdr);border-radius:9px;padding:9px 12px;color:var(--txt);font-family:'Kanit',sans-serif;font-size:12px;outline:none;margin-bottom:10px}
+.form-inp:focus{border-color:var(--acc)}
+.num-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:10px}
+.nc{background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:9px;padding:10px 6px;text-align:center}
+.nc-big{font-family:'Cinzel',serif;font-size:28px;font-weight:700;color:var(--gold);margin-bottom:3px}
+.nc-name{font-size:9px;color:var(--acc);font-family:'Cinzel',serif;margin-bottom:2px}
+.nc-desc{font-size:9px;color:var(--sub)}
+.cmp-row{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;margin-bottom:10px}
+.cmp-vs{font-family:'Cinzel',serif;font-size:15px;color:var(--gold);text-align:center}
+.cmp-inp{background:rgba(255,255,255,.07);border:1px solid var(--bdr);border-radius:9px;padding:8px 10px;color:var(--txt);font-family:'Kanit',sans-serif;font-size:12px;outline:none;width:100%;text-align:center}
+.cmp-inp:focus{border-color:var(--acc)}
+.cmp-cards{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.cmp-card{background:rgba(255,255,255,.04);border:1px solid var(--bdr);border-radius:10px;padding:11px;text-align:center}
+.cmp-nm{font-family:'Cinzel',serif;font-size:11px;color:var(--acc);margin-bottom:5px}
+.cmp-sc{font-size:26px;font-weight:700;margin-bottom:3px}
+.compat-lbl{font-size:10px;color:var(--sub);text-align:center;margin-bottom:5px}
+.compat-bg{height:8px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;margin-bottom:6px}
+.compat-fill{height:100%;border-radius:4px;transition:width 1s ease .2s;width:0%}
+.compat-pct{font-family:'Cinzel',serif;font-size:20px;font-weight:700;color:var(--gold);text-align:center;margin-bottom:10px}
+.z-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}
+.z-btn{background:rgba(255,255,255,.05);border:1px solid var(--bdr);border-radius:8px;padding:8px 4px;cursor:pointer;text-align:center;transition:background .2s}
+.z-btn:hover,.z-btn.on{background:rgba(180,130,255,.18);border-color:var(--acc)}
+.z-em{font-size:18px;display:block;margin-bottom:2px}
+.z-nm{font-size:9px;color:var(--acc);font-family:'Cinzel',serif}
+.ouija{background:linear-gradient(145deg,#1a1000,#2a1800);border:2px solid var(--gold);border-radius:12px;padding:12px;margin-bottom:10px}
+.ouija-h{font-family:'Cinzel',serif;font-size:16px;color:var(--gold);text-align:center;letter-spacing:4px;margin-bottom:7px}
+.ouija-letters{display:flex;flex-wrap:wrap;justify-content:center;gap:3px;margin-bottom:5px}
+.ol{width:24px;height:24px;border-radius:3px;background:rgba(212,175,55,.06);border:1px solid rgba(212,175,55,.15);display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:11px;color:var(--gold);transition:background .1s}
+.ol.glow{background:rgba(212,175,55,.4);box-shadow:0 0 10px rgba(212,175,55,.6);color:#fff}
+.ouija-disp{background:rgba(0,0,0,.4);border:1px solid rgba(212,175,55,.2);border-radius:6px;padding:6px 10px;min-height:32px;text-align:center;font-family:'Cinzel',serif;font-size:13px;color:var(--gold);letter-spacing:3px;margin-bottom:7px}
+.ouija-msg{font-size:12px;text-align:center;line-height:1.7;min-height:16px}
+.seimsi-num{font-family:'Cinzel',serif;font-size:32px;color:var(--gold);text-align:center;margin-bottom:6px}
+.coin-row{display:flex;justify-content:center;gap:12px;margin:6px 0}
+.coin{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;border:2px solid var(--gold);background:radial-gradient(circle at 35% 30%,#ffe04d,#c8a020);cursor:pointer}
+.coin.flip{animation:cf .55s ease forwards}
+@keyframes cf{0%{transform:rotateY(0)}50%{transform:rotateY(90deg)}100%{transform:rotateY(0)}}
+.pend-wrap{display:flex;justify-content:center;margin:6px 0}
+.r-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:5px;margin-bottom:10px}
+.rs{width:32px;height:32px;border-radius:5px;background:rgba(180,130,255,.08);border:1px solid var(--bdr);display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--acc);cursor:pointer;font-family:serif}
+.rs:hover{background:rgba(180,130,255,.2);border-color:var(--acc)}
+.h-list{display:flex;flex-direction:column;gap:6px}
+.h-item{background:rgba(255,255,255,.04);border:1px solid var(--bdr);border-radius:8px;padding:8px 11px;display:flex;align-items:center;gap:8px}
+.h-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.h-dot.good{background:var(--good)}.h-dot.bad{background:var(--bad)}.h-dot.mid{background:var(--mid)}
+.h-info{flex:1;min-width:0}
+.h-title{font-size:11px;font-weight:700;color:var(--acc);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.h-sub{font-size:9px;color:var(--sub);margin-top:1px}
+.h-sc{font-size:11px;font-weight:700;color:var(--gold)}
+.h-empty{text-align:center;color:var(--sub);font-size:12px;padding:16px 0;opacity:.6}
+.share-row{display:flex;gap:5px;flex-wrap:wrap;justify-content:center;margin-top:8px}
+.share-btn{background:rgba(255,255,255,.06);border:1px solid var(--bdr);color:var(--acc);padding:5px 12px;border-radius:12px;font-size:10px;cursor:pointer;font-family:'Kanit',sans-serif}
+.share-btn:hover{background:rgba(180,130,255,.18);border-color:var(--acc)}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1000;display:none;align-items:center;justify-content:center}
+.modal-bg.on{display:flex}
+.modal{background:linear-gradient(145deg,#1a1025,#0d0d1a);border:1px solid var(--gold);border-radius:16px;padding:18px;width:min(400px,90vw);max-height:80vh;overflow-y:auto}
+.modal-title{font-family:'Cinzel',serif;font-size:15px;color:var(--gold);text-align:center;letter-spacing:2px;margin-bottom:12px}
+.lb-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;background:rgba(255,255,255,.04);margin-bottom:5px;border:1px solid var(--bdr)}
+.lb-rank{font-family:'Cinzel',serif;font-size:14px;width:24px;text-align:center;color:var(--gold)}
+.lb-info{flex:1}.lb-name{font-size:11px;font-weight:700;color:var(--acc)}.lb-det{font-size:9px;color:var(--sub)}
+.lb-sc{font-size:13px;font-weight:700;color:var(--good)}
+.modal-close{display:block;margin:12px auto 0;background:transparent;border:1px solid var(--bdr);border-radius:18px;padding:6px 20px;color:var(--sub);font-family:'Kanit',sans-serif;cursor:pointer;font-size:11px}
+.modal-close:hover{border-color:var(--acc);color:var(--acc)}
+.fixed-row{position:fixed;bottom:14px;right:12px;display:flex;flex-direction:column;gap:6px;z-index:100}
+.fix-btn{width:42px;height:42px;border-radius:50%;border:1px solid var(--bdr);background:rgba(13,13,26,.85);backdrop-filter:blur(6px);color:var(--acc);font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.fix-btn:hover{border-color:var(--acc)}
+body.da{--bg1:#1a1510;--bg2:#241e14;--bg3:#0f0c08;--acc:#c8a96e;--gold:#b8932a;--txt:#e8dcc8;--sub:#a09070;--cbg:#1e1810;--bdr:rgba(200,169,110,.28);--good:#7ecb6e;--bad:#c86e6e;--mid:#c8a96e}
+body.y2k{--bg1:#0a001a;--bg2:#120028;--bg3:#08001a;--acc:#ff80ff;--gold:#80ffff;--txt:#fff0ff;--sub:#cc80ff;--cbg:#18003a;--bdr:rgba(255,128,255,.35);--good:#80ffcc;--bad:#ff80aa;--mid:#ffff80}
+body.thai{--bg1:#1a0800;--bg2:#261000;--bg3:#120500;--acc:#ffa040;--gold:#ffe04d;--txt:#ffe8c8;--sub:#c09060;--cbg:#1e0c00;--bdr:rgba(255,160,64,.3);--good:#80ff80;--bad:#ff6060;--mid:#ffd060}
+</style>
+</head>
+<body>
+<canvas id="bgc"></canvas>
+<div id="pcon" class="pcon"></div>
+<div id="popWrap" class="pop-wrap"></div>
+
+<div class="modal-bg" id="lbModal">
+  <div class="modal">
+    <div class="modal-title">🏆 Leaderboard</div>
+    <div id="lbList"></div>
+    <button class="modal-close" onclick="document.getElementById('lbModal').classList.remove('on')">ปิด ✕</button>
+  </div>
+</div>
+
+<canvas id="shareCanvas" style="display:none" width="1080" height="1080"></canvas>
+
+<div class="inn">
+  <h1>✦ MYSTIC ZONE ✦</h1>
+  <div class="hero-sub">เช็กดวงสไตล์ Gen Z · no cap · powered by universe</div>
+
+  <div class="ctrl-bar">
+    <button class="ctrl-btn on" onclick="setTheme('',this)">🔮 Mystic</button>
+    <button class="ctrl-btn" onclick="setTheme('da',this)">🌙 Dark Academia</button>
+    <button class="ctrl-btn" onclick="setTheme('y2k',this)">🌈 Y2K</button>
+    <button class="ctrl-btn" onclick="setTheme('thai',this)">🏮 Thai</button>
+  </div>
+
+  <div class="mode-tabs">
+    <button class="mode-tab on" onclick="sw('tarot',this)">🃏 ไพ่ยิปซี</button>
+    <button class="mode-tab" onclick="sw('chat',this)">💬 Chat หมอดู</button>
+    <button class="mode-tab" onclick="sw('num',this)">🌙 เลขศาสตร์</button>
+    <button class="mode-tab" onclick="sw('cmp',this)">👥 เปรียบดวง</button>
+    <button class="mode-tab" onclick="sw('zodiac',this)">🌌 ราศี</button>
+    <button class="mode-tab" onclick="sw('ouija',this)">👻 Ouija</button>
+    <button class="mode-tab" onclick="sw('seimsi',this)">🎋 เซียมซี</button>
+    <button class="mode-tab" onclick="sw('coin',this)">🪙 เหรียญ</button>
+    <button class="mode-tab" onclick="sw('pend',this)">🔮 ลูกตุ้ม</button>
+    <button class="mode-tab" onclick="sw('rune',this)">⚡ รูน</button>
+    <button class="mode-tab" onclick="sw('hist',this)">📊 ประวัติ</button>
+  </div>
+
+  <div class="cats">
+    <button class="cat-btn on" onclick="sc('รายวัน',this)">🌅 วันนี้</button>
+    <button class="cat-btn" onclick="sc('ความรัก',this)">💫 ความรัก</button>
+    <button class="cat-btn" onclick="sc('การงาน',this)">⚡ งาน/เรียน</button>
+    <button class="cat-btn" onclick="sc('การเงิน',this)">💎 เงิน</button>
+    <button class="cat-btn" onclick="sc('สุขภาพ',this)">🌿 สุขภาพ</button>
+  </div>
+
+  <!-- TAROT -->
+  <div class="sec on" id="sec-tarot">
+    <div class="orb-wrap">
+      <div class="orb" id="orb">🔮</div>
+      <button class="draw-btn" id="drawBtn" onclick="drawCards()">✨ จั่วไพ่เลย!</button>
+    </div>
+    <div class="cards" id="cardsRow"></div>
+    <div class="result" id="tarotResult">
+      <div class="vibe" id="vibeBox"><div class="vibe-title" id="vibeTitle"></div><div class="vibe-sub" id="vibeSub"></div></div>
+      <div class="card-rows" id="cardRows"></div>
+      <div class="ai-box"><div class="ai-title">🔮 AI อ่านดวงให้</div><div class="ai-text" id="aiText"><div class="ld"><span>●</span><span>●</span><span>●</span></div></div></div>
+      <div class="share-row">
+        <button class="share-btn" onclick="doShare()">📤 แชร์</button>
+        <button class="share-btn" onclick="genImg()">🖼️ ภาพดวง</button>
+        <button class="share-btn" onclick="sendLB()">🏆 Leaderboard</button>
+      </div>
+      <div class="fn">⚠️ ดูเพื่อความสนุก อย่า overthink 🙏</div>
+    </div>
+  </div>
+
+  <!-- CHAT -->
+  <div class="sec" id="sec-chat">
+    <div class="chat-msgs" id="chatMsgs">
+      <div class="msg bot">สวัสดี~ หมอดู AI พร้อมแล้ว 🔮 ถามอะไรก็ได้เลย!</div>
+    </div>
+    <div class="qas">
+      <button class="qa" onclick="sq('ดวงความรักช่วงนี้เป็นยังไง?')">💫 รัก</button>
+      <button class="qa" onclick="sq('งานหรือการเรียนช่วงนี้ดีไหม?')">⚡ งาน</button>
+      <button class="qa" onclick="sq('ดวงเงินช่วงนี้เป็นยังไง?')">💎 เงิน</button>
+      <button class="qa" onclick="sq('มีอะไรควรระวังไหม?')">⚠️ ระวัง</button>
+      <button class="qa" onclick="sq('วันนี้ควรทำอะไรดี?')">🌅 วันนี้</button>
+    </div>
+    <div class="chat-row">
+      <input class="chat-inp" id="chatInp" placeholder="ถามหมอดูได้เลย 🔮" onkeydown="if(event.key==='Enter')sendChat()"/>
+      <button class="chat-send" id="chatSend" onclick="sendChat()">ส่ง</button>
+    </div>
+  </div>
+
+  <!-- NUMEROLOGY -->
+  <div class="sec" id="sec-num">
+    <label class="form-lbl">📅 วันเกิด</label>
+    <input class="form-inp" type="date" id="bDate"/>
+    <label class="form-lbl">✍️ ชื่อ (ไทย/อังกฤษ)</label>
+    <input class="form-inp" type="text" id="bName" placeholder="ชื่อของแก..." maxlength="40"/>
+    <button class="draw-btn" onclick="calcNum()">🌙 คำนวณเลขชะตา!</button>
+    <div class="result" id="numResult">
+      <div class="num-cards" id="numCards"></div>
+      <div class="ai-box"><div class="ai-title">🌙 AI วิเคราะห์เลขชะตา</div><div class="ai-text" id="numAI"></div></div>
+      <div class="share-row"><button class="share-btn" onclick="doShare()">📤 แชร์</button></div>
+    </div>
+  </div>
+
+  <!-- COMPARE -->
+  <div class="sec" id="sec-cmp">
+    <div class="cmp-row">
+      <input class="cmp-inp" id="n1" placeholder="ชื่อคนแรก 💜" maxlength="18"/>
+      <div class="cmp-vs">VS</div>
+      <input class="cmp-inp" id="n2" placeholder="ชื่อคนสอง 💙" maxlength="18"/>
+    </div>
+    <button class="draw-btn" onclick="doCmp()">💑 เช็ก Compatibility!</button>
+    <div class="result" id="cmpResult">
+      <div class="cmp-cards" id="cmpCards"></div>
+      <div class="compat-lbl" id="cmpLbl"></div>
+      <div class="compat-bg"><div class="compat-fill" id="cmpBar"></div></div>
+      <div class="compat-pct" id="cmpPct"></div>
+      <div class="ai-box"><div class="ai-title">💑 AI วิเคราะห์</div><div class="ai-text" id="cmpAI"></div></div>
+      <div class="share-row"><button class="share-btn" onclick="doShare()">📤 แชร์</button></div>
+    </div>
+  </div>
+
+  <!-- ZODIAC -->
+  <div class="sec" id="sec-zodiac">
+    <div style="text-align:center;font-size:11px;color:var(--sub);margin-bottom:10px">เลือกราศี ✨</div>
+    <div class="z-grid" id="zGrid"></div>
+    <div class="result" id="zodiacResult">
+      <div class="vibe" id="zVibeBox"><div class="vibe-title" id="zVibeTitle"></div><div class="vibe-sub" id="zVibeSub"></div></div>
+      <div class="ai-box"><div class="ai-title" id="zAITitle">🌌 ดวงราศี</div><div class="ai-text" id="zAI"></div></div>
+      <div class="share-row"><button class="share-btn" onclick="doShare()">📤 แชร์</button></div>
+    </div>
+  </div>
+
+  <!-- OUIJA -->
+  <div class="sec" id="sec-ouija">
+    <div class="ouija">
+      <div class="ouija-h">✦ OUIJA ✦</div>
+      <div style="font-size:10px;color:var(--sub);text-align:center;margin-bottom:7px">ตั้งคำถามในใจ แล้วกดเรียกวิญญาณ</div>
+      <div class="ouija-letters" id="ouijaLet"></div>
+      <div class="ouija-disp" id="ouijaDsp">_ _ _ _ _</div>
+      <div class="ouija-msg" id="ouijaMsg"></div>
+    </div>
+    <button class="draw-btn" onclick="doOuija()">👻 เรียกวิญญาณ!</button>
+  </div>
+
+  <!-- SEIMSI -->
+  <div class="sec" id="sec-seimsi">
+    <div style="text-align:center;font-size:11px;color:var(--sub);margin-bottom:10px">ตั้งจิต ตั้งคำถาม แล้วสั่น!</div>
+    <button class="draw-btn" onclick="doSeimsi()">🎋 เขย่าเซียมซี!</button>
+    <div class="result" id="seimsiResult">
+      <div class="seimsi-num" id="seimsiNum"></div>
+      <div class="ai-box"><div class="ai-text" id="seimsiText"></div></div>
+      <div class="fn">ดูเพื่อ vibe ชีวิต ไม่ใช่ตัดสินใจแทน!</div>
+    </div>
+  </div>
+
+  <!-- COIN -->
+  <div class="sec" id="sec-coin">
+    <div style="text-align:center;font-size:11px;color:var(--sub);margin-bottom:8px">หัว=ใช่ ก้อย=ไม่ใช่</div>
+    <div class="coin-row"><div class="coin" id="c1">🌝</div><div class="coin" id="c2">🌝</div><div class="coin" id="c3">🌝</div></div>
+    <button class="draw-btn" onclick="doCoin()">🪙 โยนเลย!</button>
+    <div class="result" id="coinResult">
+      <div class="vibe" id="coinVibe"><div class="vibe-title" id="coinTitle"></div></div>
+      <div class="ai-box"><div class="ai-text" id="coinText"></div></div>
+    </div>
+  </div>
+
+  <!-- PENDULUM -->
+  <div class="sec" id="sec-pend">
+    <div style="text-align:center;font-size:11px;color:var(--sub);margin-bottom:8px">ถามใช่/ไม่ใช่ แล้วให้จักรวาลตอบ</div>
+    <div class="pend-wrap">
+      <svg width="140" height="120" viewBox="0 0 140 120" id="pendSvg">
+        <circle cx="70" cy="10" r="4" fill="#d4af37"/>
+        <line x1="70" y1="10" x2="70" y2="10" id="pLine" stroke="#d4af37" stroke-width="1.4"/>
+        <circle cx="70" cy="90" r="12" id="pBall" fill="#6020c0" stroke="#c9b6ff" stroke-width="1.4"/>
+        <text x="70" y="94" font-size="8" fill="#fff" text-anchor="middle">🔮</text>
+        <text x="12" y="78" font-size="9" fill="rgba(77,255,158,.4)" id="yLbl">ใช่</text>
+        <text x="112" y="78" font-size="9" fill="rgba(255,107,157,.4)" id="nLbl">ไม่ใช่</text>
+      </svg>
+    </div>
+    <button class="draw-btn" onclick="doPend()">🔮 ถามลูกตุ้ม!</button>
+    <div class="result" id="pendResult">
+      <div class="vibe" id="pendVibe"><div class="vibe-title" id="pendTitle"></div></div>
+      <div class="ai-box"><div class="ai-text" id="pendText"></div></div>
+    </div>
+  </div>
+
+  <!-- RUNE -->
+  <div class="sec" id="sec-rune">
+    <div style="text-align:center;font-size:11px;color:var(--sub);margin-bottom:9px">รูนสโตน Viking ✦ อักษรแมจิกโบราณ</div>
+    <div class="r-grid" id="runeGrid"></div>
+    <button class="draw-btn" onclick="doRune()">⚡ สุ่มรูน 3 หิน!</button>
+    <div class="result" id="runeResult">
+      <div class="card-rows" id="runeRows"></div>
+      <div class="ai-box"><div class="ai-title">⚡ รูนบอกว่า...</div><div class="ai-text" id="runeAI"></div></div>
+    </div>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="sec" id="sec-hist">
+    <div style="text-align:center;margin-bottom:10px">
+      <div style="font-size:11px;color:var(--sub);margin-bottom:7px">📊 ประวัติดวงย้อนหลัง</div>
+      <button class="share-btn" onclick="clearHist()" style="color:var(--bad);border-color:var(--bad)">🗑️ ลบประวัติ</button>
+    </div>
+    <div class="h-list" id="histList"></div>
+  </div>
+</div>
+
+<div class="fixed-row">
+  <button class="fix-btn" id="sndBtn" onclick="toggleSnd()" title="เปิด/ปิดเสียง">🔇</button>
+  <button class="fix-btn" onclick="openLB()" title="Leaderboard">🏆</button>
+</div>
+
+<script>
+const bgc=document.getElementById('bgc'),bctx=bgc.getContext('2d');
+let BW,BH,bpts=[];
+function brsz(){BW=bgc.width=window.innerWidth;BH=bgc.height=window.innerHeight}
+brsz();window.addEventListener('resize',brsz);
+for(let i=0;i<85;i++)bpts.push({x:Math.random()*2000,y:Math.random()*2000,r:Math.random()*1.3+.3,vx:(Math.random()-.5)*.11,vy:(Math.random()-.5)*.11,a:Math.random(),da:(Math.random()*.013+.003)*(Math.random()<.5?1:-1),h:Math.random()*70+250});
+(function ab(){bctx.clearRect(0,0,BW,BH);bpts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.a+=p.da;if(p.a<0||p.a>1)p.da*=-1;if(p.x<0)p.x=BW;if(p.x>BW)p.x=0;if(p.y<0)p.y=BH;if(p.y>BH)p.y=0;bctx.save();bctx.globalAlpha=p.a*.55;bctx.fillStyle=`hsl(${p.h},75%,70%)`;bctx.shadowColor=`hsl(${p.h},100%,75%)`;bctx.shadowBlur=4;bctx.beginPath();bctx.arc(p.x%BW,p.y%BH,p.r,0,Math.PI*2);bctx.fill();bctx.restore()});requestAnimationFrame(ab)})();
+
+let cat='รายวัน',sndOn=false,aCtx=null,lastR={},chatHist=[],chatBusy=false;
+const POPS={good:['SLAY!!','ปัง!!','W!!','GLOW UP!'],mid:['hmm~','ยังไหว!','mixed vibe'],bad:['yikes...','oof...','ระวัง!!']};
+
+function sw(id,btn){document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));document.querySelectorAll('.mode-tab').forEach(b=>b.classList.remove('on'));document.getElementById('sec-'+id).classList.add('on');btn.classList.add('on');if(id==='zodiac')buildZGrid();if(id==='ouija')buildOuija();if(id==='rune')buildRGrid();if(id==='hist')renderHist();}
+function sc(c,btn){cat=c;document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('on'));btn.classList.add('on')}
+function setTheme(t,btn){document.body.className=t;document.querySelectorAll('.ctrl-btn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');}
+
+function pop(v){const a=POPS[v],w=a[Math.floor(Math.random()*a.length)];const el=document.createElement('div');el.className=`pop-word ${v}`;el.textContent=w;const pw=document.getElementById('popWrap');pw.appendChild(el);setTimeout(()=>el.remove(),1400);}
+function flash(v){const f=document.createElement('div');f.style.cssText=`position:fixed;inset:0;background:${v==='good'?'rgba(0,255,120,.09)':v==='bad'?'rgba(255,0,80,.09)':'rgba(255,200,0,.07)'};z-index:998;pointer-events:none;animation:ff .6s ease forwards`;const s=document.createElement('style');s.textContent='@keyframes ff{0%{opacity:1}100%{opacity:0}}';document.head.appendChild(s);document.body.appendChild(f);setTimeout(()=>{f.remove();s.remove()},700);}
+function fx(v){if(!sndOn)return;try{const ac=aCtx||(aCtx=new AudioContext());const freqs=v==='good'?[523,659,784,1047]:v==='bad'?[300,270,240]:[440,550,440];freqs.forEach((f,i)=>setTimeout(()=>{try{const o=ac.createOscillator(),g=ac.createGain();o.connect(g);g.connect(ac.destination);o.frequency.value=f;o.type='sine';g.gain.setValueAtTime(.1,ac.currentTime);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+.2);o.start();o.stop(ac.currentTime+.2);}catch(e){}},i*80));}catch(e){}}
+function toggleSnd(){sndOn=!sndOn;document.getElementById('sndBtn').textContent=sndOn?'🔊':'🔇';if(sndOn)try{(aCtx||(aCtx=new AudioContext())).resume();}catch(e){}}
+function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
+function callAI(p,ok,fail){fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:500,messages:[{role:"user",content:p}]})}).then(r=>r.json()).then(d=>{const t=d.content&&d.content[0]?d.content[0].text:'';t?ok(t):fail()}).catch(fail);}
+function saveH(item){let h=[];try{h=JSON.parse(localStorage.getItem('mz')||'[]')}catch(e){}h.unshift({...item,date:new Date().toLocaleString('th-TH',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})});if(h.length>35)h=h.slice(0,35);try{localStorage.setItem('mz',JSON.stringify(h))}catch(e){}}
+function getH(){try{return JSON.parse(localStorage.getItem('mz')||'[]')}catch(e){return[]}}
+function clearHist(){try{localStorage.removeItem('mz')}catch(e){}renderHist();}
+function renderHist(){const l=document.getElementById('histList');if(!l)return;const h=getH();if(!h.length){l.innerHTML='<div class="h-empty">ยังไม่มีประวัติ 🔮</div>';return;}l.innerHTML=h.map(it=>`<div class="h-item"><div class="h-dot ${it.vibe}"></div><div class="h-info"><div class="h-title">${it.mode} · ${it.cat}</div><div class="h-sub">${it.detail} · ${it.date}</div></div><div class="h-sc" style="color:${it.vibe==='good'?'var(--good)':it.vibe==='bad'?'var(--bad)':'var(--mid)'}">${it.score}%</div></div>`).join('');}
+function doShare(){const t=document.querySelector('.ai-text');const msg=`✦ MYSTIC ZONE ✦\n🔮 ดวงด้าน${cat}\n${t?t.innerText.slice(0,120)+'...':''}\n#MysticZone #ดูดวง`;if(navigator.clipboard)navigator.clipboard.writeText(msg).then(()=>alert('✅ คัดลอกแล้ว!'));else alert(msg);}
+function genImg(){const cv=document.getElementById('shareCanvas'),ctx=cv.getContext('2d');const g=ctx.createLinearGradient(0,0,1080,1080);g.addColorStop(0,'#0d0d1a');g.addColorStop(1,'#1a1025');ctx.fillStyle=g;ctx.fillRect(0,0,1080,1080);ctx.strokeStyle='rgba(180,130,255,.5)';ctx.lineWidth=4;ctx.strokeRect(28,28,1024,1024);ctx.fillStyle='#c9b6ff';ctx.font='bold 52px serif';ctx.textAlign='center';ctx.fillText('✦ MYSTIC ZONE ✦',540,110);if(lastR.cards){lastR.cards.forEach((c,i)=>{ctx.font='90px serif';ctx.fillText(c.emoji,270+i*270,360);ctx.font='28px sans-serif';ctx.fillStyle='#e8d5b7';ctx.fillText(c.th,270+i*270,420);});}ctx.font='bold 44px serif';ctx.fillStyle=lastR.vibe==='good'?'#4dff9e':lastR.vibe==='bad'?'#ff6b9d':'#ffd060';ctx.fillText(lastR.vibe==='good'?'ดวงปัง!! ✨':lastR.vibe==='bad'?'ระวังด้วยนะ ⚡':'ดวง mixed vibe 🌊',540,510);ctx.font='28px sans-serif';ctx.fillStyle='#d4af37';ctx.fillText(`ด้าน${cat} · ${new Date().toLocaleDateString('th-TH')}`,540,565);const txt=document.getElementById('aiText');if(txt){ctx.font='24px sans-serif';ctx.fillStyle='rgba(232,213,183,.8)';const lines=(txt.innerText||'').slice(0,100).match(/.{1,36}/g)||[];lines.slice(0,3).forEach((l,i)=>ctx.fillText(l,540,650+i*36));}ctx.font='20px serif';ctx.fillStyle='rgba(155,142,196,.6)';ctx.fillText('#MysticZone #ดูดวง #GenZ',540,1010);cv.toBlob(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='mystic-dung.png';a.click();URL.revokeObjectURL(a.href);});}
+function openLB(){document.getElementById('lbModal').classList.add('on');const lb=JSON.parse(localStorage.getItem('mz_lb')||'[]');const icons=['🥇','🥈','🥉'];document.getElementById('lbList').innerHTML=lb.length?lb.slice(0,10).map((it,i)=>`<div class="lb-item"><div class="lb-rank">${icons[i]||i+1}</div><div class="lb-info"><div class="lb-name">${it.name}</div><div class="lb-det">${it.cat} · ${it.date}</div></div><div class="lb-sc">${it.score}%</div></div>`).join(''):'<div style="text-align:center;color:var(--sub);padding:16px">ยังไม่มีข้อมูล!</div>';}
+function sendLB(){if(!lastR.score)return;const name=prompt('ใส่ชื่อสำหรับ Leaderboard:','นักเดินทาง');if(!name)return;let lb=[];try{lb=JSON.parse(localStorage.getItem('mz_lb')||'[]')}catch(e){}lb.push({name,score:lastR.score,vibe:lastR.vibe,cat,date:new Date().toLocaleDateString('th-TH')});lb.sort((a,b)=>b.score-a.score);if(lb.length>20)lb=lb.slice(0,20);try{localStorage.setItem('mz_lb',JSON.stringify(lb))}catch(e){}alert(`✅ บันทึกแล้ว! คะแนน: ${lastR.score}% 🏆`);}
+
+const CARDS=[{key:'fool',th:'นักเดินทาง',emoji:'🌟',col:'#4a1590',score:85,vibe:'good',tip:'โอกาสใหม่กำลังจะมา อย่ากลัวเริ่มต้น'},{key:'magician',th:'จอมเวทย์',emoji:'🪄',col:'#1a0a50',score:90,vibe:'good',tip:'แกมีพลังมากกว่าที่คิด เชื่อตัวเองก่อน no cap'},{key:'priestess',th:'นักบวชสูง',emoji:'🌙',col:'#001840',score:68,vibe:'mid',tip:'ฟัง gut feeling บ้าง ใจรู้ก่อนสมอง'},{key:'empress',th:'จักรพรรดินี',emoji:'🌺',col:'#3a001a',score:88,vibe:'good',tip:'ทุกอย่าง glow up! self-care first'},{key:'chariot',th:'รถศึก',emoji:'⚡',col:'#3a2000',score:82,vibe:'good',tip:'gas gas gas! full speed ได้เลย'},{key:'strength',th:'พละกำลัง',emoji:'🦁',col:'#3a0020',score:80,vibe:'good',tip:'ค่อยๆ ทำแล้วจะปัง ไม่ต้องตะโกน'},{key:'hermit',th:'ผู้สันโดษ',emoji:'🕯️',col:'#1a1a10',score:55,vibe:'mid',tip:'quiet time คือ power!'},{key:'wheel',th:'วงล้อโชคชะตา',emoji:'☸️',col:'#3a2000',score:72,vibe:'mid',tip:'โชคหมุน ดาวน์ตอนนี้ก็จะขึ้นเอง'},{key:'star',th:'ดาวแห่งความหวัง',emoji:'⭐',col:'#0a2060',score:92,vibe:'good',tip:'จักรวาล support 1000%!'},{key:'moon',th:'ดวงจันทร์',emoji:'🌕',col:'#0d0c3a',score:42,vibe:'bad',tip:'ระวัง illusion! verify ก่อนเชื่อ'},{key:'sun',th:'ดวงอาทิตย์',emoji:'☀️',col:'#7a2000',score:96,vibe:'good',tip:'ป๊าบ!! ดวงดีสุดๆ ทำอะไรก็ปัง!'},{key:'world',th:'โลกแห่งความสำเร็จ',emoji:'🌍',col:'#0a3020',score:98,vibe:'good',tip:'ชนะแล้ว!! 👑 ฉลองได้เลย'},{key:'lovers',th:'คู่รัก',emoji:'💑',col:'#600040',score:84,vibe:'good',tip:'ความรัก glow up! open heart'},{key:'death',th:'การเปลี่ยนแปลง',emoji:'🦋',col:'#1a0000',score:60,vibe:'mid',tip:'อย่ากลัวจบ ทุกจบคือ beginning ใหม่'},{key:'tower',th:'หอคอย',emoji:'⛈️',col:'#2a0000',score:35,vibe:'bad',tip:'yikes! มีเรื่องกะทันหัน ระวังและเตรียมตัว'},{key:'justice',th:'ความยุติธรรม',emoji:'⚖️',col:'#001830',score:65,vibe:'mid',tip:'กรรมตามทัน ทำดีๆ รับผลดีเอง'},{key:'temperance',th:'ความพอดี',emoji:'🌊',col:'#001830',score:75,vibe:'mid',tip:'balance คือทุกอย่าง อย่า all-in เกิน'},{key:'judgement',th:'การตัดสิน',emoji:'📯',col:'#2a1800',score:78,vibe:'good',tip:'ถึงเวลาตัดสินใจแล้ว trust the process'}];
+const POS=['ปัจจุบัน','อุปสรรค','แนวทาง'];
+const VC={good:{title:'ดวงปังมากกกก!! ✨',sub:'vibe ดีสุดๆ เดินหน้าได้เลย'},mid:{title:'ดวง mixed vibe 🌊',sub:'มีทั้งดีและ challenge ระวังหน่อย'},bad:{title:'ช่วงนี้ energy low ⚡',sub:'ผ่านได้ถ้า play safe!'}};
+let drawing=false,drawn=[];
+
+function mkBack(){return`<div class="back"><div style="font-size:28px;opacity:.6">✦</div></div>`;}
+function mkFront(c){return`<div class="front" style="background:linear-gradient(145deg,${c.col},#0d0d1a)"><div class="card-emoji">${c.emoji}</div><div class="card-name">${c.th}</div></div>`;}
+
+function drawCards(){
+  if(drawing)return;drawing=true;
+  const btn=document.getElementById('drawBtn');btn.disabled=true;
+  document.getElementById('tarotResult').classList.remove('on');
+  document.getElementById('cardsRow').innerHTML='';drawn=[];
+  const picked=shuffle(CARDS).slice(0,3);drawn=picked;
+  picked.forEach((card,i)=>{
+    const slot=document.createElement('div');slot.className='card-wrap';
+    const box=document.createElement('div');box.className='flip-box';box.id='fb'+i;
+    box.innerHTML=mkBack()+mkFront(card);
+    const lbl=document.createElement('div');lbl.className='card-pos-lbl';lbl.textContent=POS[i];
+    slot.appendChild(box);slot.appendChild(lbl);
+    document.getElementById('cardsRow').appendChild(slot);
+  });
+  let done=0;
+  picked.forEach((_,i)=>setTimeout(()=>{
+    const fb=document.getElementById('fb'+i);if(fb)fb.classList.add('flipped');
+    done++;if(done===3)setTimeout(showTarot,550);
+  },550+i*460));
+}
+function showTarot(){
+  const avg=drawn.reduce((s,c)=>s+c.score,0)/drawn.length;
+  const v=avg>=75?'good':avg>=55?'mid':'bad';
+  const vb=document.getElementById('vibeBox');vb.className=`vibe ${v}`;
+  document.getElementById('vibeTitle').textContent=VC[v].title;
+  document.getElementById('vibeSub').textContent=VC[v].sub;
+  const rows=document.getElementById('cardRows');rows.innerHTML='';
+  drawn.forEach((c,i)=>{
+    const cl=c.score>=75?'good':c.score>=55?'mid':'bad';
+    const d=document.createElement('div');d.className=`cr ${cl}`;
+    d.innerHTML=`<div class="cr-top"><span class="cr-em">${c.emoji}</span><span class="cr-nm">${c.th}</span><span class="cr-pos">${POS[i]}</span></div><div class="bar-row"><span class="bar-lbl">พลังงาน</span><div class="bar-bg"><div class="bar-fill ${cl}" style="width:0%" id="bf${i}"></div></div><span class="bar-val">${c.score}%</span></div><div class="tip">${c.tip}</div>`;
+    rows.appendChild(d);setTimeout(()=>{const e=document.getElementById('bf'+i);if(e)e.style.width=c.score+'%';},140+i*90);
+  });
+  document.getElementById('tarotResult').classList.add('on');
+  document.getElementById('aiText').innerHTML='<div class="ld"><span>●</span><span>●</span><span>●</span></div>';
+  pop(v);flash(v);fx(v);
+  const avgScore=Math.round(drawn.reduce((s,c)=>s+c.score,0)/3);
+  lastR={score:avgScore,vibe:v,cards:drawn,detail:drawn.map(c=>c.th).join(' · ')};
+  callAI(`หมอดู Gen Z ทำนายดวงด้าน "${cat}" จากไพ่ ${drawn.map((c,i)=>`${POS[i]}:${c.th}(${c.score}%)`).join(', ')} ภาษาวัยรุ่นไทย 3-4 ประโยคสั้น`,
+    t=>{document.getElementById('aiText').innerHTML=t.replace(/\n/g,'<br>');document.getElementById('drawBtn').disabled=false;drawing=false;saveH({mode:'🃏 ไพ่',cat,vibe:v,score:avgScore,detail:drawn.map(c=>c.th).join(' · ')});},
+    ()=>{document.getElementById('aiText').innerHTML='จักรวาลบอกว่า เชื่อตัวเองไว้ก่อน no cap ✨';document.getElementById('drawBtn').disabled=false;drawing=false;});
+}
+
+function addMsg(role,txt){const m=document.getElementById('chatMsgs');const d=document.createElement('div');d.className=`msg ${role}`;d.textContent=txt;m.appendChild(d);m.scrollTop=m.scrollHeight;}
+function sq(q){document.getElementById('chatInp').value=q;sendChat();}
+function sendChat(){
+  if(chatBusy)return;const inp=document.getElementById('chatInp'),q=inp.value.trim();if(!q)return;
+  inp.value='';addMsg('user',q);chatHist.push({role:'user',content:q});chatBusy=true;
+  const cs=document.getElementById('chatSend');cs.disabled=true;
+  const td=document.createElement('div');td.className='msg bot';td.innerHTML='<div class="ld"><span>●</span><span>●</span><span>●</span></div>';
+  document.getElementById('chatMsgs').appendChild(td);document.getElementById('chatMsgs').scrollTop=9999;
+  callAI(`คุณคือหมอดู AI Gen Z พูดภาษาวัยรุ่นไทยสบายๆ ตอบสั้น 2-3 ประโยค เรื่อง: ${cat}\nบทสนทนา: ${chatHist.slice(-4).map(m=>`${m.role}: ${m.content}`).join('\n')}\nตอบ:`,
+    t=>{td.remove();addMsg('bot',t);chatHist.push({role:'assistant',content:t});chatBusy=false;cs.disabled=false;},
+    ()=>{td.remove();addMsg('bot','ขอโทษนะ connection มีปัญหา ลองใหม่ได้เลย 🙏');chatBusy=false;cs.disabled=false;});
+}
+
+const ND={1:'ผู้นำ',2:'ผู้ประสาน',3:'ผู้สร้าง',4:'รากฐาน',5:'ผู้แสวงหา',6:'ผู้ดูแล',7:'นักปราชญ์',8:'ผู้บริหาร',9:'ผู้ให้',11:'มาสเตอร์ 11',22:'มาสเตอร์ 22'};
+function redNum(n){while(n>9&&n!==11&&n!==22){const s=String(n).split('').reduce((a,d)=>a+parseInt(d),0);if(s===n)break;n=s;}return n;}
+let numBusy=false;
+function calcNum(){
+  if(numBusy)return;const ds=document.getElementById('bDate').value,name=document.getElementById('bName').value.trim();
+  if(!ds){alert('ใส่วันเกิดก่อนนะ! 📅');return;}numBusy=true;
+  const lp=redNum(ds.replace(/-/g,'').split('').reduce((a,d)=>a+parseInt(d),0));
+  const db=new Date(ds),dn=redNum(db.getDate());
+  const nm=name?redNum([...name].reduce((a,c)=>a+(c.charCodeAt(0)%9||9),0)):null;
+  document.getElementById('numCards').innerHTML=`<div class="nc"><div class="nc-big">${lp}</div><div class="nc-name">Life Path</div><div class="nc-desc">${ND[lp]||'เฉพาะตัว'}</div></div><div class="nc"><div class="nc-big">${dn}</div><div class="nc-name">วันเกิด</div><div class="nc-desc">${ND[dn]||'ผสมผสาน'}</div></div>${nm?`<div class="nc"><div class="nc-big">${nm}</div><div class="nc-name">เลขชื่อ</div><div class="nc-desc">${ND[nm]||'ผสมผสาน'}</div></div>`:`<div class="nc" style="opacity:.4"><div class="nc-big">?</div><div class="nc-name">เลขชื่อ</div><div class="nc-desc">ใส่ชื่อด้วย</div></div>`}`;
+  document.getElementById('numResult').classList.add('on');
+  document.getElementById('numAI').innerHTML='<div class="ld"><span>●</span><span>●</span><span>●</span></div>';
+  const v=lp>=5?'good':'mid';pop(v);flash(v);fx(v);lastR={score:lp*9+10,vibe:v,detail:`Life Path ${lp}`};
+  callAI(`นักเลขศาสตร์ Gen Z วิเคราะห์ Life Path ${lp}(${ND[lp]||''}) เลขวันเกิด ${dn}${nm?` เลขชื่อ ${nm}`:''}${name?` ชื่อ "${name}"`:''}  ด้าน"${cat}" ภาษาวัยรุ่นไทย 3-4 ประโยค`,
+    t=>{document.getElementById('numAI').innerHTML=t.replace(/\n/g,'<br>');saveH({mode:'🌙 เลขศาสตร์',cat,vibe:v,score:lp*9+10,detail:`Life Path ${lp}`});numBusy=false;},
+    ()=>{document.getElementById('numAI').innerHTML=`เลข ${lp} บ่งบอกถึง${ND[lp]||''} ✨`;numBusy=false;});
+}
+
+function hashN(s){return s.split('').reduce((a,c)=>((a<<5)-a)+c.charCodeAt(0),0)>>>0;}
+let cmpBusy=false;
+function doCmp(){
+  if(cmpBusy)return;const n1=document.getElementById('n1').value.trim(),n2=document.getElementById('n2').value.trim();
+  if(!n1||!n2){alert('ใส่ชื่อทั้ง 2 คนก่อนนะ!');return;}cmpBusy=true;
+  const h1=hashN(n1),h2=hashN(n2),s1=50+(h1%40),s2=50+(h2%40),compat=Math.min(98,Math.max(20,(h1^h2)%78+22));
+  const v1=s1>=75?'good':s1>=55?'mid':'bad',v2=s2>=75?'good':s2>=55?'mid':'bad',cv=compat>=70?'good':compat>=45?'mid':'bad';
+  const c1=CARDS[h1%CARDS.length],c2=CARDS[h2%CARDS.length];
+  document.getElementById('cmpCards').innerHTML=`<div class="cmp-card"><div class="cmp-nm">${n1}</div><div style="font-size:36px;margin:5px 0">${c1.emoji}</div><div class="cmp-sc" style="color:${v1==='good'?'var(--good)':v1==='bad'?'var(--bad)':'var(--mid)'}">${s1}%</div><div style="font-size:9px;color:var(--sub)">${c1.th}</div></div><div class="cmp-card"><div class="cmp-nm">${n2}</div><div style="font-size:36px;margin:5px 0">${c2.emoji}</div><div class="cmp-sc" style="color:${v2==='good'?'var(--good)':v2==='bad'?'var(--bad)':'var(--mid)'}">${s2}%</div><div style="font-size:9px;color:var(--sub)">${c2.th}</div></div>`;
+  document.getElementById('cmpLbl').textContent=`ความเข้ากัน: ${n1} + ${n2}`;
+  document.getElementById('cmpBar').style.cssText=`width:0%;background:${cv==='good'?'linear-gradient(90deg,#00c864,#4dff9e)':cv==='bad'?'linear-gradient(90deg,#c80050,#ff6b9d)':'linear-gradient(90deg,#c8a000,#ffd060)'}`;
+  document.getElementById('cmpPct').textContent=`${compat}%`;
+  document.getElementById('cmpResult').classList.add('on');
+  document.getElementById('cmpAI').innerHTML='<div class="ld"><span>●</span><span>●</span><span>●</span></div>';
+  setTimeout(()=>{document.getElementById('cmpBar').style.width=compat+'%';},80);
+  pop(cv);flash(cv);fx(cv);lastR={score:compat,vibe:cv,detail:`${n1}+${n2}`};
+  callAI(`หมอดูดวงคู่ Gen Z วิเคราะห์ "${n1}"(${c1.th}) กับ "${n2}"(${c2.th}) ด้าน"${cat}" compat ${compat}% ภาษาวัยรุ่นไทย 3 ประโยค`,
+    t=>{document.getElementById('cmpAI').innerHTML=t.replace(/\n/g,'<br>');saveH({mode:'👥 เปรียบดวง',cat,vibe:cv,score:compat,detail:`${n1}+${n2}`});cmpBusy=false;},
+    ()=>{document.getElementById('cmpAI').innerHTML=`${n1}+${n2} compat ${compat}%! ${compat>=70?'vibe เข้ากันดีมาก! 🌟':'ต้องพยายามเข้าใจกันมากขึ้น'}`;cmpBusy=false;});
+}
+
+const ZD=[{sign:'♈',name:'เมษ',emoji:'🐏',en:'Aries',num:9,col:'แดง'},{sign:'♉',name:'พฤษภ',emoji:'🐂',en:'Taurus',num:6,col:'เขียว'},{sign:'♊',name:'เมถุน',emoji:'👯',en:'Gemini',num:5,col:'เหลือง'},{sign:'♋',name:'กรกฎ',emoji:'🦀',en:'Cancer',num:2,col:'เงิน'},{sign:'♌',name:'สิงห์',emoji:'🦁',en:'Leo',num:1,col:'ทอง'},{sign:'♍',name:'กันย์',emoji:'🌾',en:'Virgo',num:5,col:'น้ำตาล'},{sign:'♎',name:'ตุลย์',emoji:'⚖️',en:'Libra',num:6,col:'ชมพู'},{sign:'♏',name:'พิจิก',emoji:'🦂',en:'Scorpio',num:8,col:'ดำ'},{sign:'♐',name:'ธนู',emoji:'🏹',en:'Sagittarius',num:3,col:'ม่วง'},{sign:'♑',name:'มกร',emoji:'🐐',en:'Capricorn',num:8,col:'น้ำเงิน'},{sign:'♒',name:'กุมภ์',emoji:'🏺',en:'Aquarius',num:4,col:'ฟ้า'},{sign:'♓',name:'มีน',emoji:'🐟',en:'Pisces',num:7,col:'เขียวน้ำทะเล'}];
+let zBusy=false;
+function buildZGrid(){const g=document.getElementById('zGrid');if(!g||g.children.length)return;ZD.forEach((z,i)=>{const b=document.createElement('div');b.className='z-btn';b.id='zb'+i;b.innerHTML=`<span class="z-em">${z.emoji}</span><div class="z-nm">${z.name}</div>`;b.onclick=()=>pickZ(z,i);g.appendChild(b);});}
+function pickZ(z,idx){
+  if(zBusy)return;zBusy=true;
+  document.querySelectorAll('.z-btn').forEach((b,i)=>b.classList.toggle('on',i===idx));
+  const v=['good','good','mid'][Math.floor(Math.random()*3)],sc=v==='good'?88:68;
+  const vb=document.getElementById('zVibeBox');vb.className=`vibe ${v}`;
+  document.getElementById('zVibeTitle').textContent=`${z.emoji} ${z.name} (${z.en})`;
+  document.getElementById('zVibeSub').textContent=`เลขนำโชค: ${z.num} · สีมงคล: ${z.col}`;
+  document.getElementById('zodiacResult').classList.add('on');
+  document.getElementById('zAITitle').textContent=`🌌 ดวง${z.name}ด้าน${cat}`;
+  document.getElementById('zAI').innerHTML='<div class="ld"><span>●</span><span>●</span><span>●</span></div>';
+  pop(v);flash(v);fx(v);lastR={score:sc,vibe:v,detail:`${z.name}`};
+  callAI(`นักพยากรณ์ดวงราศี Gen Z ทำนาย "${cat}" สำหรับราศี${z.name}(${z.en}) เลขนำโชค ${z.num} สีมงคล ${z.col} ภาษาวัยรุ่นไทย 3-4 ประโยค`,
+    t=>{document.getElementById('zAI').innerHTML=t.replace(/\n/g,'<br>');saveH({mode:'🌌 ราศี',cat,vibe:v,score:sc,detail:`${z.name}`});zBusy=false;},
+    ()=>{document.getElementById('zAI').innerHTML=`ราศี${z.name}ช่วงนี้พลังงานดีมาก เชื่อในตัวเอง ✨`;zBusy=false;});
+}
+
+const OM=[{ans:'YES',v:'good',msg:'วิญญาณตอบ YES!! ลุยได้เลย no cap 🌟'},{ans:'NO',v:'bad',msg:'วิญญาณกระซิบ NO... รอก่อนนะ 👻'},{ans:'SOON',v:'good',msg:'วิญญาณบอก SOON! อีกไม่นานมาถึง ✨'},{ans:'WAIT',v:'mid',msg:'วิญญาณบอก WAIT... patience is key'},{ans:'TRUST',v:'good',msg:'วิญญาณบอก TRUST YOURSELF 🌟'},{ans:'RUN',v:'bad',msg:'วิญญาณเตือน RUN!! ระวังด้วย!'}];
+let ouijaBusy=false;
+function buildOuija(){const e=document.getElementById('ouijaLet');if(!e||e.children.length)return;'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').forEach(l=>{const d=document.createElement('div');d.className='ol';d.id='ol'+l;d.textContent=l;e.appendChild(d);});}
+function doOuija(){
+  if(ouijaBusy)return;ouijaBusy=true;
+  document.getElementById('ouijaDsp').textContent='';document.getElementById('ouijaMsg').textContent='';
+  document.querySelectorAll('.ol').forEach(e=>e.classList.remove('glow'));
+  const pk=OM[Math.floor(Math.random()*OM.length)],lets=pk.ans.split('');let i=0;
+  const iv=setInterval(()=>{
+    if(i>0){const p=document.getElementById('ol'+lets[i-1]);if(p)p.classList.remove('glow');}
+    if(i<lets.length){const e=document.getElementById('ol'+lets[i]);if(e)e.classList.add('glow');document.getElementById('ouijaDsp').textContent=lets.slice(0,i+1).join(' ');i++;}
+    else{clearInterval(iv);setTimeout(()=>{document.querySelectorAll('.ol').forEach(e=>e.classList.remove('glow'));document.getElementById('ouijaMsg').innerHTML=`<span style="color:${pk.v==='good'?'var(--good)':pk.v==='bad'?'var(--bad)':'var(--mid)'}">${pk.msg}</span>`;pop(pk.v);flash(pk.v);fx(pk.v);lastR={score:pk.v==='good'?85:pk.v==='bad'?35:60,vibe:pk.v,detail:`คำตอบ:${pk.ans}`};saveH({mode:'👻 Ouija',cat,vibe:pk.v,score:pk.v==='good'?85:pk.v==='bad'?35:60,detail:`คำตอบ:${pk.ans}`});ouijaBusy=false;},350);}
+  },340);
+}
+
+const SI=[{n:1,v:'good',t:'上上籤 โชคดีสุด!',m:'จักรวาล vibe ดีมากกกก ทุกอย่างจะสำเร็จ!',tip:'รับโอกาสที่มาเลย อย่ารอ'},{n:7,v:'good',t:'上籤 ดวงดี',m:'ช่วงนี้ vibe ดีมาก สิ่งที่ทำอยู่กำลังจะได้ผล',tip:'ทำต่อไป อีกนิดเดียว'},{n:13,v:'mid',t:'中籤 กลางๆ',m:'ไม่ดีไม่ร้าย ต้องอาศัย effort เพิ่มหน่อย',tip:'เพิ่ม effort อีก 20%'},{n:22,v:'bad',t:'下籤 ระวัง!',m:'ช่วงนี้ low energy หน่อย ชะลอก่อน',tip:'พักก่อน รอ timing ดี'},{n:35,v:'good',t:'上上籤 โชคเด่น!',m:'ดวงกำลัง peak!! สิ่งที่รอมานานกำลังจะมา',tip:'open heart รับสิ่งดีๆ'},{n:41,v:'mid',t:'中籤 ยังไหว',m:'ผ่านได้ แต่ต้องอดทน step by step',tip:'ค่อยๆ ทำจะผ่านได้'},{n:53,v:'bad',t:'下籤 ต้องระวัง!',m:'yikes! ช่วงนี้ดาวน์ ระวังเรื่องเงินและความสัมพันธ์',tip:'stay safe อย่าเสี่ยง'}];
+let siB=false;
+function doSeimsi(){if(siB)return;siB=true;setTimeout(()=>{const pk=SI[Math.floor(Math.random()*SI.length)];document.getElementById('seimsiNum').textContent=`籤 ${pk.n}`;document.getElementById('seimsiText').innerHTML=`<div style="font-size:13px;font-weight:700;color:${pk.v==='good'?'var(--good)':pk.v==='bad'?'var(--bad)':'var(--mid)'};margin-bottom:6px">${pk.t}</div>${pk.m}<br><br><span style="color:var(--gold)">💡 เทิพ: ${pk.tip}</span>`;document.getElementById('seimsiResult').classList.add('on');pop(pk.v);flash(pk.v);fx(pk.v);lastR={score:pk.v==='good'?87:pk.v==='bad'?38:62,vibe:pk.v,detail:`籤 ${pk.n}`};saveH({mode:'🎋 เซียมซี',cat,vibe:pk.v,score:pk.v==='good'?87:pk.v==='bad'?38:62,detail:`籤 ${pk.n}`});siB=false;},600);}
+
+const IC=[{h:3,v:'good',t:'乾 ฟ้าสามองค์ — ปังสุดๆ!',m:'3 หัว = พลังสูงสุด! ทำได้เลย'},{h:2,v:'good',t:'陽 หยางเด่น — ดีมาก',m:'2 หัว = พลังงานบวก สิ่งที่ตั้งใจจะสำเร็จ'},{h:1,v:'mid',t:'陰 หยินเด่น — ระวัง',m:'1 หัว = พลังงานผสม รอ timing ที่ดีกว่า'},{h:0,v:'bad',t:'坤 ดินสามองค์ — หยุดก่อน!',m:'3 ก้อย = ยังไม่ใช่เวลา ชะลอก่อน'}];
+let coinB=false;
+function doCoin(){if(coinB)return;coinB=true;document.getElementById('coinResult').classList.remove('on');['c1','c2','c3'].forEach(id=>{const e=document.getElementById(id);if(e){e.classList.add('flip');setTimeout(()=>e.classList.remove('flip'),600);}});setTimeout(()=>{const res=Array.from({length:3},()=>Math.random()<.5);['c1','c2','c3'].forEach((id,i)=>{const e=document.getElementById(id);if(e)e.textContent=res[i]?'🌝':'🌚';});const h=res.filter(Boolean).length,ic=IC.find(r=>r.h===h)||IC[1];const str=res.map(r=>r?'หัว':'ก้อย').join('+');const vb=document.getElementById('coinVibe');vb.className=`vibe ${ic.v}`;document.getElementById('coinTitle').textContent=ic.t;document.getElementById('coinText').innerHTML=`${ic.m}<br><br><span style="color:var(--gold)">結果: ${str}</span>`;document.getElementById('coinResult').classList.add('on');pop(ic.v);flash(ic.v);fx(ic.v);lastR={score:ic.v==='good'?85:ic.v==='bad'?30:60,vibe:ic.v,detail:str};saveH({mode:'🪙 เหรียญ',cat,vibe:ic.v,score:ic.v==='good'?85:ic.v==='bad'?30:60,detail:str});coinB=false;},800);}
+
+let pAnim=null,pRun=false;
+function doPend(){if(pRun)return;pRun=true;document.getElementById('pendResult').classList.remove('on');const pl=document.getElementById('pLine'),pb=document.getElementById('pBall'),pt=document.querySelector('#pendSvg text:nth-child(4)');let t=0,dir=1,tot=0,ans=Math.random()<.5?'yes':'no';
+function a(){t+=2.6*dir;if(Math.abs(t)>=32)dir*=-1;tot++;const rad=t*Math.PI/180,cx=70+46*Math.sin(rad),cy=10+85*Math.cos(rad);if(pl){pl.setAttribute('x2',cx.toFixed(1));pl.setAttribute('y2',cy.toFixed(1));}if(pb){pb.setAttribute('cx',cx.toFixed(1));pb.setAttribute('cy',cy.toFixed(1));}if(pt){pt.setAttribute('x',cx.toFixed(1));pt.setAttribute('y',(cy+4).toFixed(1));}if(tot<85){pAnim=requestAnimationFrame(a);}else{pRun=false;const v=ans==='yes'?'good':'bad';const yl=document.getElementById('yLbl'),nl=document.getElementById('nLbl');if(yl)yl.style.opacity=ans==='yes'?'1':'.18';if(nl)nl.style.opacity=ans==='no'?'1':'.18';const vb=document.getElementById('pendVibe');vb.className=`vibe ${v}`;document.getElementById('pendTitle').textContent=ans==='yes'?'✅ จักรวาลบอก ใช่!! go for it 🌟':'❌ จักรวาลบอก ยังไม่ใช่ตอนนี้...';document.getElementById('pendText').innerHTML=`<span style="color:var(--gold)">💡 ${ans==='yes'?'เชื่อในตัวเองและลงมือทำได้เลย!':'รอ timing ที่ดีกว่านี้ อย่าฝืน'}</span>`;document.getElementById('pendResult').classList.add('on');pop(v);flash(v);fx(v);lastR={score:v==='good'?82:35,vibe:v,detail:`ตอบ:${ans==='yes'?'ใช่':'ไม่ใช่'}`};saveH({mode:'🔮 ลูกตุ้ม',cat,vibe:v,score:v==='good'?82:35,detail:`ตอบ:${ans==='yes'?'ใช่':'ไม่ใช่'}`});}}pAnim=requestAnimationFrame(a);}
+
+const RN=[{s:'ᚠ',th:'มั่งคั่ง',emoji:'💰',score:88,v:'good',tip:'เงินกำลังจะ flow เข้ามา!'},{s:'ᚢ',th:'พลังกาย',emoji:'💪',score:82,v:'good',tip:'พลังเยอะมาก ใช้ให้เต็มที่!'},{s:'ᚦ',th:'อุปสรรค',emoji:'⚡',score:38,v:'bad',tip:'มีสิ่งขัดขวาง ระวัง!'},{s:'ᚨ',th:'ปัญญา',emoji:'🦉',score:85,v:'good',tip:'ความรู้คือพลัง no cap'},{s:'ᚷ',th:'ของขวัญ',emoji:'🎁',score:90,v:'good',tip:'จะได้รับสิ่งดีๆ ที่ไม่คาดฝัน!'},{s:'ᚹ',th:'ความสุข',emoji:'😊',score:94,v:'good',tip:'ความสุขกำลังจะมาถึง!'},{s:'ᚺ',th:'พายุ',emoji:'🌪️',score:32,v:'bad',tip:'ช่วงนี้ rough ต้องอดทน'},{s:'ᛃ',th:'ผลลัพธ์',emoji:'🌾',score:83,v:'good',tip:'สิ่งที่ปลูกไว้กำลังจะเก็บเกี่ยว!'},{s:'ᛊ',th:'ดวงอาทิตย์',emoji:'☀️',score:96,v:'good',tip:'ดวงดีสุดขีด!! ทำอะไรก็ปัง!'},{s:'ᛏ',th:'ชัยชนะ',emoji:'⚔️',score:86,v:'good',tip:'ชัยชนะรอแกอยู่!'},{s:'ᛒ',th:'เริ่มต้นใหม่',emoji:'🌱',score:84,v:'good',tip:'เริ่มต้นใหม่ได้เลย!'},{s:'ᛟ',th:'มรดก',emoji:'🏠',score:76,v:'good',tip:'รากฐานแข็งแกร่ง ใช้ประโยชน์'}];
+function buildRGrid(){const g=document.getElementById('runeGrid');if(!g||g.children.length)return;RN.forEach(r=>{const d=document.createElement('div');d.className='rs';d.textContent=r.s;d.title=r.th;g.appendChild(d);});}
+let runeBusy=false;
+function doRune(){
+  if(runeBusy)return;runeBusy=true;document.getElementById('runeResult').classList.remove('on');
+  const pk=shuffle(RN).slice(0,3),rpos=['อดีต','ปัจจุบัน','อนาคต'];
+  const rows=document.getElementById('runeRows');rows.innerHTML='';
+  pk.forEach((r,i)=>{const cl=r.score>=75?'good':r.score>=55?'mid':'bad';const d=document.createElement('div');d.className=`cr ${cl}`;d.innerHTML=`<div class="cr-top"><span class="cr-em" style="font-family:serif;font-size:18px">${r.s}</span><span class="cr-nm">${r.th} ${r.emoji}</span><span class="cr-pos">${rpos[i]}</span></div><div class="bar-row"><span class="bar-lbl">พลังงาน</span><div class="bar-bg"><div class="bar-fill ${cl}" style="width:0%" id="rb${i}"></div></div><span class="bar-val">${r.score}%</span></div><div class="tip">${r.tip}</div>`;rows.appendChild(d);setTimeout(()=>{const e=document.getElementById('rb'+i);if(e)e.style.width=r.score+'%';},140+i*90);});
+  document.getElementById('runeResult').classList.add('on');
+  document.getElementById('runeAI').innerHTML='<div class="ld"><span>●</span><span>●</span><span>●</span></div>';
+  const avg=Math.round(pk.reduce((s,r)=>s+r.score,0)/3),v=avg>=75?'good':avg>=55?'mid':'bad';
+  pop(v);flash(v);fx(v);lastR={score:avg,vibe:v,detail:pk.map(r=>r.th).join('·')};
+  callAI(`นักอ่านรูน Viking Gen Z ทำนายด้าน "${cat}" จากรูน ${pk.map((r,i)=>`${rpos[i]}:${r.th}`).join(', ')} ภาษาวัยรุ่นไทย 3 ประโยค`,
+    t=>{document.getElementById('runeAI').innerHTML=t.replace(/\n/g,'<br>');saveH({mode:'⚡ รูน',cat,vibe:v,score:avg,detail:pk.map(r=>r.th).join('·')});runeBusy=false;},
+    ()=>{document.getElementById('runeAI').innerHTML='รูนบอกว่า จักรวาลกำลัง align ให้แก ✨';runeBusy=false;});
+}
+</script>
+</body>
+</html>
